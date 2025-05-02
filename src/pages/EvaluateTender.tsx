@@ -1,481 +1,283 @@
 
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { 
-  Award,
-  Calendar,
-  FileText,
-  Download,
-  Star,
-  StarHalf,
-  ChevronLeft,
-  ChevronRight,
-  Paperclip,
-  CheckCircle,
-  Building,
-  DollarSign,
-  Clock
-} from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { toast } from '@/components/ui/use-toast';
 
-// Mock tender and submission data
-const tenderData = {
-  id: 1,
-  title: 'Office Equipment Procurement',
-  description: 'Seeking a vendor to supply office equipment including computers, printers, and furniture.',
-  organization: 'Ministry of Education',
-  deadline: '2025-05-30',
-  evaluationCriteria: [
-    { id: 1, name: 'Technical Quality', maxScore: 40, description: 'Evaluate the technical specifications and quality of proposed equipment' },
-    { id: 2, name: 'Price', maxScore: 30, description: 'Evaluate the competitiveness of the pricing and value for money' },
-    { id: 3, name: 'Delivery Timeline', maxScore: 15, description: 'Evaluate the proposed delivery schedule and feasibility' },
-    { id: 4, name: 'Vendor Experience', maxScore: 15, description: 'Evaluate vendor\'s past experience and track record with similar projects' },
+// Mock data
+const mockTender = {
+  id: 'T-2023-007',
+  title: 'IT Infrastructure Upgrade',
+  description: 'Seeking proposals for a comprehensive upgrade of our IT infrastructure including servers, network equipment, and workstations.',
+  company: 'TechSolutions Inc.',
+  submissionDate: '2025-04-20',
+  criteria: [
+    { id: 1, name: 'Technical Merit', weight: 30 },
+    { id: 2, name: 'Price', weight: 25 },
+    { id: 3, name: 'Experience & Qualifications', weight: 20 },
+    { id: 4, name: 'Delivery Timeline', weight: 15 },
+    { id: 5, name: 'Support & Maintenance', weight: 10 },
+  ],
+  documents: [
+    { id: 1, name: 'Technical Proposal.pdf', size: '2.4 MB' },
+    { id: 2, name: 'Company Profile.pdf', size: '1.8 MB' },
+    { id: 3, name: 'Financial Offer.pdf', size: '1.2 MB' },
+    { id: 4, name: 'Implementation Plan.xlsx', size: '890 KB' },
   ]
 };
 
-const submissionsData = [
-  {
-    id: 101,
-    vendorName: 'Tech Solutions Inc.',
-    submissionDate: '2025-05-10',
-    proposalTitle: 'Premium Office Equipment Package',
-    proposalAmount: '$48,500',
-    deliveryTimeframe: '21 days',
-    proposalSummary: 'We offer high-quality office equipment including the latest models of computers, printers, and ergonomic furniture. Our package includes delivery, installation, and a 3-year warranty on all items.',
-    documents: [
-      { name: 'Technical Proposal', type: 'pdf', size: '2.1 MB' },
-      { name: 'Financial Proposal', type: 'pdf', size: '1.5 MB' },
-      { name: 'Company Profile', type: 'pdf', size: '3.2 MB' },
-      { name: 'Past Experience', type: 'pdf', size: '2.8 MB' },
-    ],
-    evaluated: false
-  },
-  {
-    id: 102,
-    vendorName: 'Office Depot',
-    submissionDate: '2025-05-15',
-    proposalTitle: 'Complete Office Solution',
-    proposalAmount: '$45,800',
-    deliveryTimeframe: '28 days',
-    proposalSummary: 'Our comprehensive office solution includes standard desktop computers, network printers, and modular furniture. We provide professional installation and basic staff training on all equipment.',
-    documents: [
-      { name: 'Technical Proposal', type: 'pdf', size: '1.8 MB' },
-      { name: 'Financial Proposal', type: 'pdf', size: '1.2 MB' },
-      { name: 'Company Profile', type: 'pdf', size: '2.5 MB' },
-      { name: 'Past Experience', type: 'pdf', size: '2.3 MB' },
-    ],
-    evaluated: true
-  },
-  {
-    id: 103,
-    vendorName: 'Business Suppliers Ltd',
-    submissionDate: '2025-05-18',
-    proposalTitle: 'Budget-Friendly Equipment Package',
-    proposalAmount: '$42,300',
-    deliveryTimeframe: '35 days',
-    proposalSummary: 'We offer cost-effective office equipment without compromising on essential features. Our package includes energy-efficient computers, multifunctional printers, and space-saving furniture.',
-    documents: [
-      { name: 'Technical Proposal', type: 'pdf', size: '1.9 MB' },
-      { name: 'Financial Proposal', type: 'pdf', size: '1.3 MB' },
-      { name: 'Company Profile', type: 'pdf', size: '2.1 MB' },
-      { name: 'Past Experience', type: 'pdf', size: '1.8 MB' },
-    ],
-    evaluated: false
-  }
-];
-
-// Create an evaluation schema based on the tender's criteria
-const createEvaluationSchema = (criteria: typeof tenderData.evaluationCriteria) => {
-  const schemaObj: Record<string, any> = {};
-  
-  criteria.forEach(c => {
-    schemaObj[`score_${c.id}`] = z.string()
-      .refine((val) => !isNaN(parseFloat(val)), "Must be a valid number")
-      .refine(
-        (val) => parseFloat(val) >= 0 && parseFloat(val) <= c.maxScore, 
-        `Score must be between 0 and ${c.maxScore}`
-      );
-  });
-  
-  schemaObj['comments'] = z.string().min(10, "Comments must be at least 10 characters").max(500, "Comments cannot exceed 500 characters");
-  
-  return z.object(schemaObj);
-};
+// Form schema type for the evaluation
+interface EvaluationFormValues {
+  comments: string;
+  [key: string]: any;
+}
 
 const EvaluateTender = () => {
-  const { id } = useParams();
-  const [currentSubmissionIndex, setCurrentSubmissionIndex] = useState(0);
-  const [evaluatedSubmissions, setEvaluatedSubmissions] = useState<number[]>([102]);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState('criteria'); // 'criteria' or 'documents'
   
-  // Get tender and submissions data (mock data for now)
-  const tender = tenderData;
-  const submissions = submissionsData;
-  const currentSubmission = submissions[currentSubmissionIndex];
-  
-  // Check if submission is already evaluated
-  const isEvaluated = evaluatedSubmissions.includes(currentSubmission.id);
-  
-  // Create schema dynamically based on criteria
-  const evaluationSchema = createEvaluationSchema(tender.evaluationCriteria);
-  
-  // Create form with default values
-  const form = useForm({
-    resolver: zodResolver(evaluationSchema),
-    defaultValues: tender.evaluationCriteria.reduce((acc, criteria) => {
-      return {
-        ...acc,
-        [`score_${criteria.id}`]: '',
-      };
-    }, { comments: '' }),
+  const form = useForm<EvaluationFormValues>({
+    defaultValues: {
+      comments: '',
+    }
   });
   
-  // Calculate total score
+  const { register, handleSubmit, setValue, watch } = form;
+
+  // Calculate the total score based on form values
   const calculateTotalScore = () => {
-    return tender.evaluationCriteria.reduce((total, criteria) => {
-      const scoreValue = form.watch(`score_${criteria.id}`) || '0';
-      return total + (parseFloat(scoreValue) || 0);
-    }, 0);
+    let total = 0;
+    mockTender.criteria.forEach(criterion => {
+      const scoreKey = `score_${criterion.id}`;
+      const score = parseInt(watch(scoreKey) || '0');
+      total += score;
+    });
+    return total;
   };
-  
-  const totalMaxScore = tender.evaluationCriteria.reduce((sum, c) => sum + c.maxScore, 0);
-  const currentTotalScore = calculateTotalScore();
-  
-  // Navigate between submissions
-  const navigateSubmission = (direction: 'prev' | 'next') => {
-    if (direction === 'prev' && currentSubmissionIndex > 0) {
-      setCurrentSubmissionIndex(currentSubmissionIndex - 1);
-      form.reset();
-    } else if (direction === 'next' && currentSubmissionIndex < submissions.length - 1) {
-      setCurrentSubmissionIndex(currentSubmissionIndex + 1);
-      form.reset();
-    }
-  };
-  
-  // Handle form submission
-  const onSubmit = (data: z.infer<ReturnType<typeof createEvaluationSchema>>) => {
-    console.log('Evaluation data:', data);
+
+  // Submit the evaluation
+  const onSubmit = (data: EvaluationFormValues) => {
+    const totalScore = calculateTotalScore();
     
-    // Add submission to evaluated list
-    if (!evaluatedSubmissions.includes(currentSubmission.id)) {
-      setEvaluatedSubmissions([...evaluatedSubmissions, currentSubmission.id]);
-    }
+    // Prepare the submission data with scores and comments
+    const evaluationData = {
+      tenderId: id,
+      totalScore,
+      criteriaScores: mockTender.criteria.map(criterion => ({
+        criterionId: criterion.id,
+        score: parseInt(data[`score_${criterion.id}`] || '0'),
+      })),
+      comments: data.comments,
+    };
     
-    // Show success message
+    console.log('Evaluation submitted:', evaluationData);
+    
     toast({
-      title: "Evaluation submitted",
-      description: `You've successfully evaluated ${currentSubmission.vendorName}'s submission.`,
+      title: 'Evaluation Submitted',
+      description: `You've successfully submitted your evaluation with a score of ${totalScore} out of 100.`,
     });
     
-    // Navigate to next submission if available
-    if (currentSubmissionIndex < submissions.length - 1) {
-      navigateSubmission('next');
-    } else {
-      // If this was the last submission, go to the completed evaluations page
-      form.reset();
-    }
+    // Redirect to the evaluations list
+    navigate('/my-evaluations');
   };
-  
+
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link to={`/tenders/${id}`}>
-                Back to Tender
-              </Link>
-            </Button>
-          </div>
-          <h1 className="text-2xl font-bold">Evaluate Tender Submissions</h1>
-          <div className="flex items-center gap-1">
-            <h2 className="text-lg">{tender.title}</h2>
-            <span className="text-muted-foreground">({submissions.length} submissions)</span>
-          </div>
+        <div className="flex flex-col space-y-2 mb-6">
+          <h1 className="text-2xl font-bold">Evaluate Submission</h1>
+          <p className="text-muted-foreground">
+            Review and score the vendor's submission for Tender #{mockTender.id}
+          </p>
         </div>
-
-        <div className="flex justify-between items-center mb-4">
-          <Button 
-            variant="outline" 
-            onClick={() => navigateSubmission('prev')}
-            disabled={currentSubmissionIndex === 0}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Previous
-          </Button>
-          
-          <div className="text-center">
-            <div className="text-lg font-medium">{currentSubmissionIndex + 1} of {submissions.length}</div>
-            <div className="text-sm text-muted-foreground">
-              {evaluatedSubmissions.length} of {submissions.length} evaluated
-            </div>
-          </div>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => navigateSubmission('next')}
-            disabled={currentSubmissionIndex === submissions.length - 1}
-          >
-            Next
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Submission Details</CardTitle>
-                  <Badge variant={isEvaluated ? "secondary" : "outline"}>
-                    {isEvaluated ? "Evaluated" : "Pending Evaluation"}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <h3 className="text-lg font-medium">{currentSubmission.proposalTitle}</h3>
-                      <div className="text-sm text-muted-foreground">
-                        Submitted: {currentSubmission.submissionDate}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{currentSubmission.vendorName}</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-start gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground mt-1" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Proposed Budget</div>
-                        <div className="font-medium">{currentSubmission.proposalAmount}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground mt-1" />
-                      <div>
-                        <div className="text-sm text-muted-foreground">Delivery Timeframe</div>
-                        <div className="font-medium">{currentSubmission.deliveryTimeframe}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Proposal Summary</h4>
-                    <div className="text-sm text-muted-foreground bg-muted/30 p-4 rounded-md">
-                      {currentSubmission.proposalSummary}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Submitted Documents</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {currentSubmission.documents.map((doc, index) => (
-                        <div key={index} className="flex justify-between items-center p-2 bg-muted/30 rounded-md">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4 text-blue-500" />
-                            <span className="text-sm">{doc.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">{doc.size}</span>
-                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Evaluation Form</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <div>
-                      <h4 className="text-sm font-medium mb-4">Scoring Criteria</h4>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Criteria</TableHead>
-                            <TableHead>Description</TableHead>
-                            <TableHead className="w-24 text-right">Max Score</TableHead>
-                            <TableHead className="w-24 text-right">Your Score</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {tender.evaluationCriteria.map((criteria) => (
-                            <TableRow key={criteria.id}>
-                              <TableCell className="font-medium">{criteria.name}</TableCell>
-                              <TableCell className="text-sm text-muted-foreground">{criteria.description}</TableCell>
-                              <TableCell className="text-right">{criteria.maxScore}</TableCell>
-                              <TableCell className="text-right">
-                                <FormField
-                                  control={form.control}
-                                  name={`score_${criteria.id}`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormControl>
-                                        <Input
-                                          {...field}
-                                          className="w-16 text-right"
-                                          placeholder="0"
-                                          disabled={isEvaluated}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                          <TableRow>
-                            <TableCell colSpan={2} className="text-right font-medium">Total</TableCell>
-                            <TableCell className="text-right font-medium">{totalMaxScore}</TableCell>
-                            <TableCell className="text-right font-medium">{currentTotalScore}</TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </div>
-                    
-                    <div>
-                      <FormField
-                        control={form.control}
-                        name="comments"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Evaluation Comments</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Provide your comments and feedback on this submission..."
-                                className="min-h-24"
-                                {...field}
-                                disabled={isEvaluated}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    
-                    <div className="flex justify-end space-x-3">
-                      {!isEvaluated && (
-                        <Button type="submit">
-                          <Award className="h-4 w-4 mr-2" />
-                          Submit Evaluation
-                        </Button>
-                      )}
-                      
-                      {isEvaluated && (
-                        <div className="flex items-center text-green-600">
-                          <CheckCircle className="h-5 w-5 mr-2" />
-                          <span>Evaluation Submitted</span>
-                        </div>
-                      )}
-                    </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-          </div>
-
+          {/* Submission Details */}
           <div className="lg:col-span-1 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Evaluation Guidelines</CardTitle>
+                <CardTitle>Submission Details</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 text-sm">
+              <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-medium">Technical Quality (max 40 points)</h4>
-                  <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground">
-                    <li>Exceeds requirements: 30-40 points</li>
-                    <li>Meets all requirements: 20-29 points</li>
-                    <li>Meets most requirements: 10-19 points</li>
-                    <li>Inadequate solution: 0-9 points</li>
-                  </ul>
+                  <h3 className="text-sm font-medium text-muted-foreground">Tender ID</h3>
+                  <p>{mockTender.id}</p>
                 </div>
-                
                 <div>
-                  <h4 className="font-medium">Price (max 30 points)</h4>
-                  <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground">
-                    <li>Excellent value: 25-30 points</li>
-                    <li>Good value: 15-24 points</li>
-                    <li>Average value: 8-14 points</li>
-                    <li>Poor value: 0-7 points</li>
-                  </ul>
+                  <h3 className="text-sm font-medium text-muted-foreground">Tender Title</h3>
+                  <p>{mockTender.title}</p>
                 </div>
-                
                 <div>
-                  <h4 className="font-medium">Delivery Timeline (max 15 points)</h4>
-                  <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground">
-                    <li>Under 25 days: 12-15 points</li>
-                    <li>25-35 days: 8-11 points</li>
-                    <li>36-45 days: 4-7 points</li>
-                    <li>Over 45 days: 0-3 points</li>
-                  </ul>
+                  <h3 className="text-sm font-medium text-muted-foreground">Vendor</h3>
+                  <p>{mockTender.company}</p>
                 </div>
-                
                 <div>
-                  <h4 className="font-medium">Vendor Experience (max 15 points)</h4>
-                  <ul className="list-disc list-inside space-y-1 mt-2 text-muted-foreground">
-                    <li>Extensive experience: 12-15 points</li>
-                    <li>Moderate experience: 8-11 points</li>
-                    <li>Limited experience: 4-7 points</li>
-                    <li>Minimal experience: 0-3 points</li>
-                  </ul>
+                  <h3 className="text-sm font-medium text-muted-foreground">Submitted On</h3>
+                  <p>{mockTender.submissionDate}</p>
                 </div>
               </CardContent>
-              <CardFooter className="bg-muted/30 border-t">
-                <div className="text-xs text-muted-foreground">
-                  Your evaluations should be fair, objective, and based solely on the submission content and evaluation criteria.
-                </div>
-              </CardFooter>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Navigation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button 
+                  variant={activeSection === 'criteria' ? 'default' : 'outline'} 
+                  className="w-full justify-start"
+                  onClick={() => setActiveSection('criteria')}
+                >
+                  Evaluation Criteria
+                </Button>
+                <Button 
+                  variant={activeSection === 'documents' ? 'default' : 'outline'} 
+                  className="w-full justify-start"
+                  onClick={() => setActiveSection('documents')}
+                >
+                  Submitted Documents
+                </Button>
+              </CardContent>
             </Card>
             
-            <div className="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-100 rounded-md">
-              <div className="space-y-1">
-                <div className="text-sm font-medium text-yellow-800">Evaluation Progress</div>
-                <div className="text-xs text-yellow-700">{evaluatedSubmissions.length} of {submissions.length} evaluated</div>
-              </div>
-              
-              <div className="flex">
-                {submissions.map((_, index) => (
-                  <div 
-                    key={index} 
-                    className={`w-2 h-2 rounded-full mx-0.5 ${
-                      evaluatedSubmissions.includes(submissions[index].id) 
-                        ? 'bg-green-500' 
-                        : currentSubmissionIndex === index 
-                          ? 'bg-yellow-500' 
-                          : 'bg-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Evaluation Progress</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Total Score</span>
+                    <span className="font-medium">{calculateTotalScore()}/100</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2.5">
+                    <div 
+                      className="bg-primary h-2.5 rounded-full" 
+                      style={{ width: `${calculateTotalScore()}%` }}
+                    ></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Evaluation Form */}
+          <div className="lg:col-span-2">
+            <Card className="h-full">
+              <CardHeader>
+                <CardTitle>
+                  {activeSection === 'criteria' ? 'Evaluation Criteria' : 'Submitted Documents'}
+                </CardTitle>
+                <CardDescription>
+                  {activeSection === 'criteria' 
+                    ? 'Score each criterion from 0-20 based on the vendor\'s submission' 
+                    : 'Review the documents submitted by the vendor'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  {activeSection === 'criteria' ? (
+                    <div className="space-y-6">
+                      {mockTender.criteria.map((criterion) => (
+                        <div key={criterion.id} className="space-y-3 pb-4 border-b">
+                          <div className="flex justify-between items-center">
+                            <Label htmlFor={`score_${criterion.id}`} className="text-base font-medium">
+                              {criterion.name}
+                            </Label>
+                            <span className="text-sm text-muted-foreground">
+                              Weight: {criterion.weight}%
+                            </span>
+                          </div>
+                          
+                          <RadioGroup
+                            defaultValue="0"
+                            onValueChange={(value) => 
+                              setValue(`score_${criterion.id}`, value)
+                            }
+                          >
+                            <div className="flex flex-wrap gap-4">
+                              {[0, 5, 10, 15, 20].map(score => (
+                                <div key={score} className="flex items-center gap-1">
+                                  <RadioGroupItem 
+                                    value={score.toString()} 
+                                    id={`${criterion.id}_${score}`} 
+                                  />
+                                  <Label htmlFor={`${criterion.id}_${score}`}>{score}</Label>
+                                </div>
+                              ))}
+                            </div>
+                          </RadioGroup>
+                        </div>
+                      ))}
+                      
+                      <div className="space-y-3 pt-2">
+                        <Label htmlFor="comments" className="text-base font-medium">
+                          Additional Comments
+                        </Label>
+                        <Textarea
+                          id="comments"
+                          placeholder="Enter any additional comments or feedback about the submission..."
+                          className="min-h-[150px]"
+                          {...register('comments')}
+                        />
+                      </div>
+                      
+                      <div className="flex justify-between pt-6">
+                        <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          Submit Evaluation
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <ScrollArea className="h-[450px]">
+                        <div className="space-y-4">
+                          {mockTender.documents.map((doc) => (
+                            <div key={doc.id} className="flex items-center justify-between p-3 border rounded-md">
+                              <div className="flex items-center gap-3">
+                                <div className="p-2 bg-primary/10 rounded-md">
+                                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="font-medium">{doc.name}</p>
+                                  <p className="text-xs text-muted-foreground">{doc.size}</p>
+                                </div>
+                              </div>
+                              <Button variant="outline" size="sm">
+                                View
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                      
+                      <div className="flex justify-center pt-4">
+                        <Button 
+                          onClick={() => setActiveSection('criteria')} 
+                          className="w-full max-w-xs"
+                        >
+                          Continue to Evaluation
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

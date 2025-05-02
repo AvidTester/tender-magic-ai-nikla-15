@@ -23,8 +23,6 @@ import {
   Users, 
   Award, 
   FileCheck, 
-  Settings, 
-  HelpCircle, 
   LogOut, 
   Briefcase, 
   ClipboardCheck,
@@ -46,9 +44,7 @@ const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any
         { title: 'Create Tender', path: '/create-tender' },
       ]
     },
-    { title: 'Submissions', icon: Send, path: '/submissions' },
     { title: 'Vendors', icon: Users, path: '/vendors' },
-    { title: 'Evaluations', icon: Award, path: '/evaluations' },
     { title: 'Results', icon: ListOrdered, path: '/results' },
     { title: 'Reports', icon: FileCheck, path: '/reports' },
   ],
@@ -63,12 +59,6 @@ const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any
     { title: 'Completed Evaluations', icon: FileCheck, path: '/completed-evaluations' },
   ]
 };
-
-// Utility menu items (common for all roles)
-const utilityMenuItems = [
-  { title: 'Settings', icon: Settings, path: '/settings' },
-  { title: 'Help', icon: HelpCircle, path: '/help' },
-];
 
 export function RoleBasedNavigation() {
   const { user, logout } = useAuth();
@@ -106,7 +96,7 @@ export function RoleBasedNavigation() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="overflow-hidden">
         <SidebarGroup>
           <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -153,27 +143,6 @@ export function RoleBasedNavigation() {
                       )}
                     </>
                   )}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-6">
-          <SidebarGroupLabel>Utilities</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {utilityMenuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={location.pathname === item.path}
-                  >
-                    <Link to={item.path}>
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

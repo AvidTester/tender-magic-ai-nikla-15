@@ -11,12 +11,8 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import CreateTender from "./pages/CreateTender";
-import Submissions from "./pages/Submissions";
 import Vendors from "./pages/Vendors";
-import Evaluations from "./pages/Evaluations";
 import Reports from "./pages/Reports";
-import Settings from "./pages/Settings";
-import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import Forbidden from "./pages/Forbidden";
 import AvailableTenders from "./pages/AvailableTenders";
@@ -52,16 +48,6 @@ const App = () => (
                 <Index />
               </ProtectedRoute>
             } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            } />
-            <Route path="/help" element={
-              <ProtectedRoute>
-                <Help />
-              </ProtectedRoute>
-            } />
             
             {/* Admin only routes */}
             <Route path="/tenders" element={
@@ -79,19 +65,9 @@ const App = () => (
                 <CreateTender />
               </ProtectedRoute>
             } />
-            <Route path="/submissions" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Submissions />
-              </ProtectedRoute>
-            } />
             <Route path="/vendors" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Vendors />
-              </ProtectedRoute>
-            } />
-            <Route path="/evaluations" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Evaluations />
               </ProtectedRoute>
             } />
             <Route path="/results" element={
@@ -153,6 +129,12 @@ const App = () => (
                 <CompletedEvaluations />
               </ProtectedRoute>
             } />
+            
+            {/* Redirects for removed pages */}
+            <Route path="/settings" element={<Navigate to="/" replace />} />
+            <Route path="/help" element={<Navigate to="/" replace />} />
+            <Route path="/submissions" element={<Navigate to="/" replace />} />
+            <Route path="/evaluations" element={<Navigate to="/" replace />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />

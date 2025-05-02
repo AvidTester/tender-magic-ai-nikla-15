@@ -10,7 +10,6 @@ import {
   Calendar,
   FilePlus,
   Edit,
-  Eye,
   Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -118,12 +117,6 @@ const Tenders = () => {
       </CardContent>
       <CardFooter className="flex justify-between border-t pt-4">
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={`/tenders/${tender.id}`}>
-              <Eye className="mr-2 h-4 w-4" />
-              View
-            </Link>
-          </Button>
           <Button variant="ghost" size="sm" asChild>
             <Link to={`/tenders/${tender.id}/edit`}>
               <Edit className="mr-2 h-4 w-4" />
