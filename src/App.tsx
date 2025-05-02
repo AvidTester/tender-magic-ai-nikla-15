@@ -28,6 +28,9 @@ import Results from "./pages/Results";
 import TenderDetail from "./pages/TenderDetail";
 import ApplyTender from "./pages/ApplyTender";
 import EvaluateTender from "./pages/EvaluateTender";
+import EvaluationForm from "./pages/EvaluationForm";
+import EvaluationDetail from "./pages/EvaluationDetail";
+import UpdateSubmission from "./pages/UpdateSubmission";
 
 const queryClient = new QueryClient();
 
@@ -118,11 +121,26 @@ const App = () => (
                 <MySubmissions />
               </ProtectedRoute>
             } />
+            <Route path="/update-submission/:id" element={
+              <ProtectedRoute allowedRoles={['vendor']}>
+                <UpdateSubmission />
+              </ProtectedRoute>
+            } />
             
             {/* Evaluator only routes */}
             <Route path="/evaluate-tender/:id" element={
               <ProtectedRoute allowedRoles={['evaluator']}>
                 <EvaluateTender />
+              </ProtectedRoute>
+            } />
+            <Route path="/evaluation-form/:id" element={
+              <ProtectedRoute allowedRoles={['evaluator']}>
+                <EvaluationForm />
+              </ProtectedRoute>
+            } />
+            <Route path="/evaluation-detail/:id" element={
+              <ProtectedRoute allowedRoles={['evaluator']}>
+                <EvaluationDetail />
               </ProtectedRoute>
             } />
             <Route path="/my-evaluations" element={

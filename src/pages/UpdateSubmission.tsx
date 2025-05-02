@@ -1,35 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { 
-  FileText,
-  Download,
-  Upload,
-  Check,
-  FileUp,
-  AlertCircle
-} from 'lucide-react';
+import { AlertCircle, FileText, Download, Upload, Check, FileUp } from 'lucide-react';
 
-// Mock tender data
-const tenderData = {
-  id: 1,
-  title: 'Office Equipment Procurement',
-  description: 'Seeking a vendor to supply office equipment including computers, printers, and furniture.',
-  category: 'IT',
-  status: 'Open',
-  deadline: '2025-05-30',
-  budget: '$50,000',
-  organization: 'Ministry of Education',
-  publishDate: '2025-05-01',
+// Mock submission data
+const submissionData = {
+  id: "S-101",
+  tenderId: "T-2023-42",
+  tenderTitle: "IT Infrastructure Upgrade",
+  category: "IT",
+  status: "Under Review",
+  submissionDate: "2025-05-01",
   documents: [
-    { id: 1, name: 'Tender Specification Document', type: 'pdf', size: '2.4 MB' },
-    { id: 2, name: 'Equipment Requirements', type: 'docx', size: '1.8 MB' },
-    { id: 3, name: 'Evaluation Criteria', type: 'pdf', size: '1.1 MB' }
+    { id: 1, name: "Technical Proposal", type: "pdf", filename: "tech_proposal_v1.pdf", size: "3.2 MB" },
+    { id: 2, name: "Financial Proposal", type: "pdf", filename: "financial_offer.pdf", size: "1.8 MB" },
+    { id: 3, name: "Company Profile", type: "docx", filename: "company_profile_2025.docx", size: "4.1 MB" },
+    { id: 4, name: "Past Experience", type: "pdf", filename: "past_projects.pdf", size: "2.8 MB" }
   ],
   requiredDocuments: [
     'Technical Proposal',
@@ -39,24 +30,32 @@ const tenderData = {
   ]
 };
 
-const ApplyTender = () => {
+const UpdateSubmission = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [files, setFiles] = useState<{[key: string]: File | null}>({});
+  const [existingFiles, setExistingFiles] = useState<{[key: string]: {name: string, size: string}}>({});
   
   // Using mock data for now
-  const tender = tenderData;
+  const submission = submissionData;
   
   // File input refs for each document type
   const fileInputRefs: {[key: string]: React.RefObject<HTMLInputElement>} = {};
-  tender.requiredDocuments.forEach(doc => {
+  submission.requiredDocuments.forEach(doc => {
     fileInputRefs[doc] = React.useRef<HTMLInputElement>(null);
   });
 
-  // Initialize files object
-  React.useEffect(() => {
+  // Initialize existing files
+  useEffect(() => {
+    const initialExistingFiles: {[key: string]: {name: string, size: string}} = {};
+    submission.documents.forEach(doc => {
+      initialExistingFiles[doc.name] = { name: doc.filename, size: doc.size };
+    });
+    setExistingFiles(initialExistingFiles);
+    
+    // Initialize files object
     const newFiles: {[key: string]: File | null} = {};
-    tender.requiredDocuments.forEach(doc => {
+    submission.requiredDocuments.forEach(doc => {
       newFiles[doc] = null;
     });
     setFiles(newFiles);
@@ -110,30 +109,30 @@ const ApplyTender = () => {
     
     toast({
       title: "File removed",
-      description: `${docType} has been removed from your submission.`,
+      description: `New file for ${docType} has been removed.`,
     });
   };
 
   const onSubmit = () => {
-    // Check if all required documents are uploaded
-    const missingDocs = tender.requiredDocuments.filter(doc => !files[doc]);
+    // Check if any files have been selected for update
+    const hasUpdates = Object.values(files).some(file => file !== null);
     
-    if (missingDocs.length > 0) {
+    if (!hasUpdates) {
       toast({
-        title: "Missing documents",
-        description: `Please upload: ${missingDocs.join(', ')}`,
+        title: "No changes detected",
+        description: "Please select at least one file to update.",
         variant: "destructive",
       });
       return;
     }
     
-    // In a real app, you would submit the files to your backend
-    console.log('Files:', files);
+    // In a real app, you would submit the updated files to your backend
+    console.log('Files to update:', files);
     
     // Success message
     toast({
-      title: "Submission successful!",
-      description: "Your tender application has been submitted successfully.",
+      title: "Submission updated",
+      description: "Your tender submission has been updated successfully.",
     });
     
     // Redirect to my submissions page
@@ -149,16 +148,16 @@ const ApplyTender = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Button variant="outline" size="sm" asChild>
-                <Link to={`/tenders/${id}`}>
-                  Back to Tender Details
+                <Link to="/my-submissions">
+                  Back to My Submissions
                 </Link>
               </Button>
-              <Badge>{tender.status}</Badge>
-              <Badge variant="outline">{tender.category}</Badge>
+              <Badge>{submission.status}</Badge>
+              <Badge variant="outline">{submission.category}</Badge>
             </div>
-            <h1 className="text-2xl font-bold">Apply for: {tender.title}</h1>
+            <h1 className="text-2xl font-bold">Update Submission: {submission.tenderTitle}</h1>
             <p className="text-muted-foreground mt-1">
-              Upload all required documents to complete your submission
+              Update your submission documents if needed
             </p>
           </div>
         </div>
@@ -167,7 +166,7 @@ const ApplyTender = () => {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle>Document Upload</CardTitle>
+                <CardTitle>Update Documents</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -176,27 +175,30 @@ const ApplyTender = () => {
                       <AlertCircle className="h-5 w-5 mt-0.5" />
                       <div>
                         <h4 className="font-medium">Important</h4>
-                        <p className="text-sm">All documents must be in PDF or Word format and less than 10MB in size.</p>
+                        <p className="text-sm">
+                          Only upload documents you wish to update. Your existing documents will remain unchanged unless you upload a replacement.
+                        </p>
                       </div>
                     </div>
                   </div>
                 
-                  <h3 className="text-sm font-medium">Required Documents</h3>
+                  <h3 className="text-sm font-medium">Submission Documents</h3>
                   <div className="grid gap-4 md:grid-cols-2">
-                    {tender.requiredDocuments.map((docType) => (
+                    {submission.requiredDocuments.map((docType) => (
                       <div key={docType} className={`border rounded-md p-3 ${files[docType] ? 'border-green-200 bg-green-50' : ''}`}>
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center">
                             <FileUp className="h-4 w-4 mr-2 text-muted-foreground" />
                             <span className="text-sm font-medium">{docType}</span>
                           </div>
-                          {files[docType] ? (
-                            <Badge variant="outline" className="bg-green-50 text-green-700">
-                              <Check className="h-3 w-3 mr-1" /> Uploaded
+                          {existingFiles[docType] && !files[docType] && (
+                            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                              Current
                             </Badge>
-                          ) : (
-                            <Badge variant="outline" className="bg-yellow-50 text-yellow-700">
-                              Required
+                          )}
+                          {files[docType] && (
+                            <Badge variant="outline" className="bg-green-50 text-green-700">
+                              <Check className="h-3 w-3 mr-1" /> New
                             </Badge>
                           )}
                         </div>
@@ -208,6 +210,12 @@ const ApplyTender = () => {
                           onChange={(e) => handleFileChange(e, docType)}
                           accept=".pdf,.doc,.docx"
                         />
+                        
+                        {existingFiles[docType] && !files[docType] && (
+                          <div className="text-xs mb-2">
+                            Current: {existingFiles[docType].name} ({existingFiles[docType].size})
+                          </div>
+                        )}
                         
                         {files[docType] && (
                           <div className="text-xs truncate mb-2">{files[docType]?.name}</div>
@@ -222,7 +230,7 @@ const ApplyTender = () => {
                             onClick={() => triggerFileInput(docType)}
                           >
                             <Upload className="h-3 w-3 mr-1" />
-                            {files[docType] ? 'Replace' : 'Upload'}
+                            {existingFiles[docType] ? 'Replace' : 'Upload'}
                           </Button>
                           
                           {files[docType] && (
@@ -248,7 +256,7 @@ const ApplyTender = () => {
                     size="lg"
                     className="px-8"
                   >
-                    Submit Application
+                    Update Submission
                   </Button>
                 </div>
               </CardContent>
@@ -258,49 +266,42 @@ const ApplyTender = () => {
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
-                <CardTitle>Tender Information</CardTitle>
+                <CardTitle>Submission Information</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Description</h3>
-                    <p className="mt-1">{tender.description}</p>
+                    <h3 className="text-sm font-medium text-muted-foreground">Tender</h3>
+                    <p className="mt-1">{submission.tenderTitle}</p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-y-4">
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Deadline</h3>
-                      <p className="mt-1">{new Date(tender.deadline).toLocaleDateString()}</p>
+                      <h3 className="text-sm font-medium text-muted-foreground">Submission ID</h3>
+                      <p className="mt-1">{submission.id}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Budget</h3>
-                      <p className="mt-1">{tender.budget}</p>
+                      <h3 className="text-sm font-medium text-muted-foreground">Status</h3>
+                      <p className="mt-1">{submission.status}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Organization</h3>
-                      <p className="mt-1">{tender.organization}</p>
+                      <h3 className="text-sm font-medium text-muted-foreground">Category</h3>
+                      <p className="mt-1">{submission.category}</p>
                     </div>
                     <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Published</h3>
-                      <p className="mt-1">{new Date(tender.publishDate).toLocaleDateString()}</p>
+                      <h3 className="text-sm font-medium text-muted-foreground">Submitted</h3>
+                      <p className="mt-1">{new Date(submission.submissionDate).toLocaleDateString()}</p>
                     </div>
                   </div>
                   
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Tender Documents</h3>
-                    <div className="space-y-2">
-                      {tender.documents.map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-2 border rounded-md">
-                          <div className="flex items-center">
-                            <FileText className="h-4 w-4 mr-2 text-muted-foreground" />
-                            <span className="text-sm">{doc.name} ({doc.size})</span>
-                          </div>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="p-3 rounded-md bg-blue-50 border border-blue-100 text-blue-800">
+                    <h3 className="text-sm font-medium">Important Notes</h3>
+                    <ul className="list-disc list-inside text-xs mt-1 space-y-1">
+                      <li>You can update your submission until the tender deadline</li>
+                      <li>Only upload files you want to replace</li>
+                      <li>Make sure new documents follow all tender requirements</li>
+                      <li>Previous versions will be available in submission history</li>
+                    </ul>
                   </div>
                 </div>
               </CardContent>
@@ -312,4 +313,4 @@ const ApplyTender = () => {
   );
 };
 
-export default ApplyTender;
+export default UpdateSubmission;
