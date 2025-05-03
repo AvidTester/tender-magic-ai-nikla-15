@@ -95,11 +95,11 @@ const SubmissionDetail = () => {
   const isVendor = user?.role === 'vendor';
   
   const backLinkDestination = isVendor 
-    ? '/my-submissions' 
+    ? '/available-tenders' 
     : `/tenders/${submission.tenderId}/submissions`;
   
   const backLinkText = isVendor
-    ? 'Back to My Submissions'
+    ? 'Back to Available Tenders'
     : 'Back to Submissions List';
   
   return (
