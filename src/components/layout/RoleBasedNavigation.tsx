@@ -27,7 +27,8 @@ import {
   Briefcase, 
   ClipboardCheck,
   ListOrdered,
-  UserCheck
+  UserCheck,
+  Flag
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole } from '@/contexts/AuthContext';
@@ -47,12 +48,14 @@ const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any
     },
     { title: 'Vendors', icon: Users, path: '/vendors' },
     { title: 'Evaluators', icon: UserCheck, path: '/evaluators' },
+    { title: 'Disputes', icon: Flag, path: '/disputes' },
     { title: 'Reports', icon: FileCheck, path: '/reports' },
   ],
   vendor: [
     { title: 'Dashboard', icon: Home, path: '/' },
     { title: 'Available Tenders', icon: Briefcase, path: '/available-tenders' },
     { title: 'My Submissions', icon: Send, path: '/my-submissions' },
+    { title: 'My Disputes', icon: Flag, path: '/disputes' },
   ],
   evaluator: [
     { title: 'Dashboard', icon: Home, path: '/' },

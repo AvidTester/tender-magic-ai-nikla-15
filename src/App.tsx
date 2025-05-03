@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +30,8 @@ import EvaluationDetail from "./pages/EvaluationDetail";
 import UpdateSubmission from "./pages/UpdateSubmission";
 import Evaluators from "./pages/Evaluators";
 import EditTender from "./pages/EditTender";
+import Disputes from "./pages/Disputes";
+import TenderDisputes from "./pages/TenderDisputes";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +70,11 @@ const App = () => (
                 <TenderSubmissions />
               </ProtectedRoute>
             } />
+            <Route path="/tenders/:id/disputes" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <TenderDisputes />
+              </ProtectedRoute>
+            } />
             <Route path="/submissions/:id" element={
               <ProtectedRoute>
                 <SubmissionDetail />
@@ -95,6 +103,11 @@ const App = () => (
             <Route path="/reports" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Reports />
+              </ProtectedRoute>
+            } />
+            <Route path="/disputes" element={
+              <ProtectedRoute allowedRoles={['admin', 'vendor']}>
+                <Disputes />
               </ProtectedRoute>
             } />
             
