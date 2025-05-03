@@ -26,6 +26,7 @@ import EvaluateTender from "./pages/EvaluateTender";
 import EvaluationForm from "./pages/EvaluationForm";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import UpdateSubmission from "./pages/UpdateSubmission";
+import Evaluators from "./pages/Evaluators";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,11 @@ const App = () => (
             <Route path="/vendors" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Vendors />
+              </ProtectedRoute>
+            } />
+            <Route path="/evaluators" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Evaluators />
               </ProtectedRoute>
             } />
             <Route path="/reports" element={

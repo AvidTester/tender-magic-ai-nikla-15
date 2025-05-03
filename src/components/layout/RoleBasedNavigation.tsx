@@ -26,7 +26,8 @@ import {
   LogOut, 
   Briefcase, 
   ClipboardCheck,
-  ListOrdered
+  ListOrdered,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { UserRole } from '@/contexts/AuthContext';
@@ -45,6 +46,7 @@ const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any
       ]
     },
     { title: 'Vendors', icon: Users, path: '/vendors' },
+    { title: 'Evaluators', icon: UserCheck, path: '/evaluators' },
     { title: 'Reports', icon: FileCheck, path: '/reports' },
   ],
   vendor: [
