@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,7 @@ import {
   Trophy,
   Award
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -171,6 +172,7 @@ const Tenders = () => {
   });
   const [showResultsDialog, setShowResultsDialog] = useState(false);
   const [currentTenderId, setCurrentTenderId] = useState<number | null>(null);
+  const navigate = useNavigate();
 
   const filteredTendersByStatus = (status: string) => {
     if (status === 'all') return tenders;
@@ -178,8 +180,8 @@ const Tenders = () => {
   };
 
   const handleShowResults = (tenderId: number) => {
-    setCurrentTenderId(tenderId);
-    setShowResultsDialog(true);
+    // Instead of opening dialog, navigate to the submissions page
+    navigate(`/tenders/${tenderId}/submissions`);
   };
 
   const handleSelectWinner = (tenderId: number, submissionId: number) => {
