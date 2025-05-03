@@ -11,7 +11,8 @@ import {
   Calendar, 
   Building,
   FileText,
-  Edit
+  Edit,
+  Eye
 } from 'lucide-react';
 import { 
   Table, 
@@ -156,9 +157,9 @@ const MySubmissions = () => {
                           size="sm"
                           asChild
                         >
-                          <Link to={`/tenders/${submission.tender.id}`}>
-                            <FileText className="h-4 w-4 mr-2" />
-                            View Details
+                          <Link to={`/submissions/${submission.id}`}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            Details
                           </Link>
                         </Button>
                         

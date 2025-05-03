@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, CheckCircle, ListOrdered, Award } from 'lucide-react';
+import { FileText, Download, CheckCircle, ListOrdered, Award, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 // Mock submission data
@@ -92,6 +92,15 @@ const SubmissionDetail = () => {
   };
   
   const isAdmin = user?.role === 'admin';
+  const isVendor = user?.role === 'vendor';
+  
+  const backLinkDestination = isVendor 
+    ? '/my-submissions' 
+    : `/tenders/${submission.tenderId}/submissions`;
+  
+  const backLinkText = isVendor
+    ? 'Back to My Submissions'
+    : 'Back to Submissions List';
   
   return (
     <MainLayout>
@@ -100,8 +109,9 @@ const SubmissionDetail = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Button variant="outline" size="sm" asChild>
-                <Link to={`/tenders/${submission.tenderId}/submissions`}>
-                  Back to Submissions List
+                <Link to={backLinkDestination}>
+                  <ArrowLeft className="h-4 w-4 mr-1" />
+                  {backLinkText}
                 </Link>
               </Button>
               <Badge>{submission.status}</Badge>
@@ -222,7 +232,7 @@ const SubmissionDetail = () => {
                               <TableCell>{evaluation.scores.implementation}</TableCell>
                               <TableCell className="font-medium">{evaluation.overallScore}</TableCell>
                               <TableCell>
-                                <Badge variant={evaluation.rank === 1 ? "default" : "outline"}>
+                                <Badge variant={evaluation.rank === 1 ? "default" : "outline"} className="flex w-8 justify-center">
                                   {evaluation.rank === 1 ? (
                                     <div className="flex items-center">
                                       <ListOrdered className="h-3 w-3 mr-1" />
