@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { DisputeForm } from './DisputeForm';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface DisputeButtonProps {
   tenderId: string;
@@ -59,19 +60,32 @@ export function DisputeButton({
 
   return (
     <>
-      <Button
-        variant={variant}
-        size={size}
-        onClick={() => setIsDialogOpen(true)}
-        disabled={!isWithinTimeFrame}
-        className="flex items-center gap-2"
-      >
-        <Flag className="h-4 w-4" />
-        {buttonText}
-        {isWithinTimeFrame && getDaysLeft() <= 3 && (
-          <span className="text-xs text-red-500 font-medium">{getDaysLeft()} days left</span>
-        )}
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex">
+              <Button
+                variant={variant}
+                size={size}
+                onClick={() => setIsDialogOpen(true)}
+                disabled={!isWithinTimeFrame}
+                className="flex items-center gap-2"
+              >
+                <Flag className="h-4 w-4" />
+                {buttonText}
+                {isWithinTimeFrame && getDaysLeft() <= 3 && (
+                  <span className="text-xs text-red-500 font-medium">{getDaysLeft()} days left</span>
+                )}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          {!isWithinTimeFrame && (
+            <TooltipContent>
+              <p>The {disputeTimeFrameDays}-day window for filing disputes has expired</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-lg">

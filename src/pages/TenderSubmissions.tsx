@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -9,7 +10,8 @@ import {
   Award, 
   ArrowUpDown, 
   FileText, 
-  Check
+  Check,
+  Medal
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -84,11 +86,30 @@ const mockTender = {
   hasWinner: false
 };
 
+// Function to get the rank display
+const getRankDisplay = (rank: number) => {
+  if (rank === 0) return null;
+  
+  switch (rank) {
+    case 1:
+      return <Medal className="h-5 w-5 text-yellow-500" />;
+    case 2:
+      return <Medal className="h-5 w-5 text-gray-400" />;
+    case 3:
+      return <Medal className="h-5 w-5 text-amber-700" />;
+    default:
+      return <span className="font-semibold">#{rank}</span>;
+  }
+};
+
 const TenderSubmissions = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'ascending' | 'descending' } | null>({
+    key: 'rank', 
+    direction: 'ascending'
+  });
   const [publishingWinnerId, setPublishingWinnerId] = useState<string | null>(null);
   
   // Use mock data - in a real app, fetch data based on the tender ID
@@ -100,6 +121,12 @@ const TenderSubmissions = () => {
     let sortableItems = [...submissions];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
+        // Special handling for rank - put rank=0 (unranked) at the end
+        if (sortConfig.key === 'rank') {
+          if (a.rank === 0) return 1;
+          if (b.rank === 0) return -1;
+        }
+        
         if (a[sortConfig.key as keyof typeof a] < b[sortConfig.key as keyof typeof b]) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
@@ -175,6 +202,7 @@ const TenderSubmissions = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12 text-center">Rank</TableHead>
                   <TableHead>Vendor</TableHead>
                   <TableHead onClick={() => requestSort('submissionDate')} className="cursor-pointer">
                     <div className="flex items-center">
@@ -200,7 +228,10 @@ const TenderSubmissions = () => {
               </TableHeader>
               <TableBody>
                 {sortedSubmissions.map((submission) => (
-                  <TableRow key={submission.id}>
+                  <TableRow key={submission.id} className={submission.rank === 1 ? "bg-yellow-50" : ""}>
+                    <TableCell className="text-center">
+                      {getRankDisplay(submission.rank)}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm">
