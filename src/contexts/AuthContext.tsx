@@ -25,37 +25,8 @@ interface AuthContextType {
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo purposes
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin',
-    avatar: 'AU',
-  },
-  {
-    id: '2',
-    name: 'Vendor Company',
-    email: 'vendor@example.com',
-    role: 'vendor',
-    avatar: 'VC',
-  },
-  {
-    id: '3',
-    name: 'Evaluator One',
-    email: 'evaluator1@example.com',
-    role: 'evaluator',
-    avatar: 'EO',
-  },
-  {
-    id: '4',
-    name: 'Evaluator Two',
-    email: 'evaluator2@example.com',
-    role: 'evaluator',
-    avatar: 'ET',
-  }
-];
+// API URL
+const API_URL = 'http://localhost:5000/api';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -70,30 +41,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  // Mock login function - in a real app, this would validate against a backend
+  // Login function - connects to the backend API
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const foundUser = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-    
-    if (foundUser) {
-      setUser(foundUser);
-      localStorage.setItem('user', JSON.stringify(foundUser));
+    try {
+      const response = await fetch(`${API_URL}/users/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Transform the API response to match our User interface
+        const userData: User = {
+          id: data._id,
+          name: data.name,
+          email: data.email,
+          role: data.role as UserRole,
+          avatar: data.avatar,
+        };
+        
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        // Also store the token for authenticated requests
+        localStorage.setItem('token', data.token);
+        setIsLoading(false);
+        return true;
+      } else {
+        setIsLoading(false);
+        return false;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
       setIsLoading(false);
-      return true;
+      return false;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
   // Logout function
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (

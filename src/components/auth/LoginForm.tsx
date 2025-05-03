@@ -61,10 +61,11 @@ export const LoginForm = () => {
         });
         navigate(from, { replace: true });
       } else {
-        setLoginError('Invalid email or password. Try one of the demo accounts.');
+        setLoginError('Invalid email or password.');
       }
     } catch (error) {
-      setLoginError('An error occurred during login.');
+      setLoginError('An error occurred during login. Please try again.');
+      console.error('Login error:', error);
     } finally {
       setIsLoggingIn(false);
     }
@@ -123,7 +124,7 @@ export const LoginForm = () => {
                 <p>- vendor@example.com (Vendor)</p>
                 <p>- evaluator1@example.com (Evaluator)</p>
                 <p>- evaluator2@example.com (Evaluator)</p>
-                <p className="mt-1 italic">Any password will work for these demo accounts</p>
+                <p className="mt-1 italic">Password: password123</p>
               </div>
             </div>
             
@@ -142,7 +143,7 @@ export const LoginForm = () => {
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
-          This is a demo with no actual authentication.
+          This connects to a MongoDB backend for authentication.
         </p>
       </CardFooter>
     </Card>
