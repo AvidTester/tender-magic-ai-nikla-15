@@ -21,13 +21,14 @@ import MyEvaluations from "./pages/MyEvaluations";
 import CompletedEvaluations from "./pages/CompletedEvaluations";
 import Tenders from "./pages/Tenders";
 import TenderDetail from "./pages/TenderDetail";
+import TenderSubmissions from "./pages/TenderSubmissions";
 import ApplyTender from "./pages/ApplyTender";
 import EvaluateTender from "./pages/EvaluateTender";
 import EvaluationForm from "./pages/EvaluationForm";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import UpdateSubmission from "./pages/UpdateSubmission";
 import Evaluators from "./pages/Evaluators";
-import EditTender from "./pages/EditTender"; // Add the new page import
+import EditTender from "./pages/EditTender";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,11 @@ const App = () => (
             <Route path="/tenders/:id" element={
               <ProtectedRoute allowedRoles={['admin', 'vendor', 'evaluator']}>
                 <TenderDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/tenders/:id/submissions" element={
+              <ProtectedRoute allowedRoles={['admin', 'evaluator']}>
+                <TenderSubmissions />
               </ProtectedRoute>
             } />
             <Route path="/tenders/:id/edit" element={
