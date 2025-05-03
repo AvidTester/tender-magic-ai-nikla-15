@@ -61,11 +61,11 @@ export const LoginForm = () => {
         });
         navigate(from, { replace: true });
       } else {
-        setLoginError('Invalid email or password.');
+        setLoginError('Invalid email or password. Please check your credentials and try again.');
       }
     } catch (error) {
-      setLoginError('An error occurred during login. Please try again.');
-      console.error('Login error:', error);
+      console.error('Login error in form:', error);
+      setLoginError('Connection error. Please make sure the backend server is running at the correct URL.');
     } finally {
       setIsLoggingIn(false);
     }
@@ -143,7 +143,7 @@ export const LoginForm = () => {
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
-          This connects to a MongoDB backend for authentication.
+          Make sure the backend server is running on port 5000.
         </p>
       </CardFooter>
     </Card>

@@ -25,8 +25,8 @@ interface AuthContextType {
 // Create the auth context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// API URL
-const API_URL = 'http://localhost:5000/api';
+// API URL - Updated to use the current hostname instead of hardcoded localhost
+const API_URL = `${window.location.protocol}//${window.location.hostname}:5000/api`;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -46,6 +46,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
+      console.log('Attempting login to:', `${API_URL}/users/login`);
+      
       const response = await fetch(`${API_URL}/users/login`, {
         method: 'POST',
         headers: {
@@ -73,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
         return true;
       } else {
+        console.error('Login failed:', data);
         setIsLoading(false);
         return false;
       }
