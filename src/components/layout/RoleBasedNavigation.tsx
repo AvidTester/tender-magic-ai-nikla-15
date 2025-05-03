@@ -45,7 +45,6 @@ const menuItemsByRole: Record<UserRole, Array<{title: string; icon: React.FC<any
       ]
     },
     { title: 'Vendors', icon: Users, path: '/vendors' },
-    { title: 'Results', icon: ListOrdered, path: '/results' },
     { title: 'Reports', icon: FileCheck, path: '/reports' },
   ],
   vendor: [
@@ -178,3 +177,4 @@ export function RoleBasedNavigation() {
     </Sidebar>
   );
 }
+
