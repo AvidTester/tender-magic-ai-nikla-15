@@ -5,11 +5,11 @@ import { Upload, X, FileText, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface FileUploaderProps {
-  onFileUpload: (files: File[]) => void
-  maxFiles?: number
-  maxSize?: number // in bytes
-  acceptedFileTypes?: string[]
-  className?: string
+  onFileUpload: (files: File[]) => void;
+  maxFiles?: number;
+  maxSize?: number; // in bytes
+  acceptedFileTypes?: string[];
+  className?: string;
 }
 
 export function FileUploader({
