@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { 
   Form, 
   FormControl, 
-  FormDescription, 
   FormField, 
   FormItem, 
   FormLabel, 
@@ -20,7 +19,7 @@ import {
 } from '@/components/ui/form';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
-import { AlertCircle, LogIn } from 'lucide-react';
+import { AlertCircle, Loader2, LogIn } from 'lucide-react';
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address' }),
@@ -30,14 +29,36 @@ const loginFormSchema = z.object({
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export const LoginForm = () => {
-  const { login } = useAuth();
+  const { login, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
   // Get the return URL from location state or default to dashboard
   const from = location.state?.from?.pathname || '/';
+
+  // Check if the API is accessible
+  useEffect(() => {
+    const checkApiStatus = async () => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(`${window.location.protocol}//${window.location.hostname}:5000/api`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        setApiStatus(response.ok ? 'online' : 'offline');
+      } catch (error) {
+        setApiStatus('offline');
+      }
+    };
+    
+    checkApiStatus();
+  }, []);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -48,6 +69,15 @@ export const LoginForm = () => {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
+    if (apiStatus === 'offline') {
+      toast({
+        title: "Backend server offline",
+        description: "Please make sure the backend server is running on port 5000",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setLoginError(null);
     setIsLoggingIn(true);
     
@@ -57,15 +87,15 @@ export const LoginForm = () => {
       if (success) {
         toast({
           title: "Login successful",
-          description: "Welcome back!",
+          description: "Welcome to the procurement platform!",
         });
         navigate(from, { replace: true });
       } else {
-        setLoginError('Invalid email or password. Please check your credentials and try again.');
+        setLoginError('Login failed. Please check your credentials and try again.');
       }
     } catch (error) {
       console.error('Login error in form:', error);
-      setLoginError('Connection error. Please make sure the backend server is running at the correct URL.');
+      setLoginError('Connection error. Please make sure the backend server is running.');
     } finally {
       setIsLoggingIn(false);
     }
@@ -86,6 +116,15 @@ export const LoginForm = () => {
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{loginError}</AlertDescription>
+              </Alert>
+            )}
+            
+            {apiStatus === 'offline' && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Backend server appears to be offline. Please make sure it's running on port 5000.
+                </AlertDescription>
               </Alert>
             )}
             
@@ -128,9 +167,16 @@ export const LoginForm = () => {
               </div>
             </div>
             
-            <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
-              {isLoggingIn ? (
-                <>Logging in...</>
+            <Button 
+              type="submit" 
+              className="w-full mt-4" 
+              disabled={isLoggingIn || authLoading || apiStatus === 'checking'}
+            >
+              {isLoggingIn || authLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Authenticating...
+                </>
               ) : (
                 <>
                   <LogIn className="mr-2 h-4 w-4" />
@@ -143,7 +189,9 @@ export const LoginForm = () => {
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground">
-          Make sure the backend server is running on port 5000.
+          {apiStatus === 'online' ? 'Backend server connected' : 
+           apiStatus === 'checking' ? 'Checking server status...' : 
+           'Backend server not detected - ensure it is running on port 5000'}
         </p>
       </CardFooter>
     </Card>

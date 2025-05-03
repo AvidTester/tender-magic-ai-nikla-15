@@ -8,20 +8,25 @@ import generateToken from '../utils/generateToken.js';
 const authUser = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  try {
+    const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      avatar: user.avatar || user.name.split(' ').map(n => n[0]).join(''),
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
+    if (user && (await user.matchPassword(password))) {
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar || user.name.split(' ').map(n => n[0]).join(''),
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(401);
+      throw new Error('Invalid email or password');
+    }
+  } catch (error) {
+    console.error('Auth error:', error);
+    res.status(401).json({ message: 'Invalid email or password' });
   }
 };
 
@@ -81,6 +86,14 @@ const getUserProfile = async (req, res) => {
   }
 };
 
+// @desc    Verify JWT token
+// @route   GET /api/users/verify-token
+// @access  Private
+const verifyToken = async (req, res) => {
+  // If middleware passed, token is valid
+  res.status(200).json({ valid: true });
+};
+
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private/Admin
@@ -111,5 +124,6 @@ export {
   getUserProfile, 
   getUsers,
   getEvaluators,
-  getVendors
+  getVendors,
+  verifyToken
 };
