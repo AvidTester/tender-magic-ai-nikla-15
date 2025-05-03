@@ -237,10 +237,10 @@ const TenderDetail = () => {
                 </div>
               </CardContent>
               <CardFooter className="border-t pt-4">
-                <Button className="w-full" asChild>
+                <Button className="w-full" variant="default" asChild>
                   <Link to={`/tenders/${id}/submissions`}>
                     <ClipboardList className="h-4 w-4 mr-2" />
-                    View All Submissions
+                    View Submissions
                   </Link>
                 </Button>
               </CardFooter>

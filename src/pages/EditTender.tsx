@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -299,8 +298,8 @@ export default function EditTender() {
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <DatePicker
-                      date={deadline}
-                      setDate={setDeadline}
+                      value={deadline}
+                      onChange={setDeadline}
                       className="w-full"
                     />
                   </div>
@@ -358,7 +357,7 @@ export default function EditTender() {
             <CardContent>
               <div className="space-y-4">
                 <div className="border rounded-md p-4">
-                  <FileUploader onFilesSelected={handleFileUpload} />
+                  <FileUploader onUpload={handleFileUpload} />
                 </div>
                 
                 {documents.length > 0 && (
