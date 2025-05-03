@@ -20,7 +20,6 @@ import MySubmissions from "./pages/MySubmissions";
 import MyEvaluations from "./pages/MyEvaluations";
 import CompletedEvaluations from "./pages/CompletedEvaluations";
 import Tenders from "./pages/Tenders";
-import Results from "./pages/Results";
 import TenderDetail from "./pages/TenderDetail";
 import ApplyTender from "./pages/ApplyTender";
 import EvaluateTender from "./pages/EvaluateTender";
@@ -68,11 +67,6 @@ const App = () => (
             <Route path="/vendors" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <Vendors />
-              </ProtectedRoute>
-            } />
-            <Route path="/results" element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <Results />
               </ProtectedRoute>
             } />
             <Route path="/reports" element={
@@ -135,6 +129,7 @@ const App = () => (
             <Route path="/help" element={<Navigate to="/" replace />} />
             <Route path="/submissions" element={<Navigate to="/" replace />} />
             <Route path="/evaluations" element={<Navigate to="/" replace />} />
+            <Route path="/results" element={<Navigate to="/tenders" replace />} />
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
