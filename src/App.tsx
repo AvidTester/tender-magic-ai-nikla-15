@@ -27,6 +27,7 @@ import EvaluationForm from "./pages/EvaluationForm";
 import EvaluationDetail from "./pages/EvaluationDetail";
 import UpdateSubmission from "./pages/UpdateSubmission";
 import Evaluators from "./pages/Evaluators";
+import EditTender from "./pages/EditTender"; // Add the new page import
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,11 @@ const App = () => (
             <Route path="/tenders/:id" element={
               <ProtectedRoute allowedRoles={['admin', 'vendor', 'evaluator']}>
                 <TenderDetail />
+              </ProtectedRoute>
+            } />
+            <Route path="/tenders/:id/edit" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <EditTender />
               </ProtectedRoute>
             } />
             <Route path="/create-tender" element={
