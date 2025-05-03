@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -10,9 +9,7 @@ import {
   Award, 
   ArrowUpDown, 
   FileText, 
-  ListOrdered, 
-  Check, 
-  FileCheck
+  Check
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -242,7 +239,7 @@ const TenderSubmissions = () => {
                           Details
                         </Button>
                         
-                        {user?.role === 'admin' && submission.status === 'Evaluated' && submission.rank === 1 && (
+                        {user?.role === 'admin' && submission.status === 'Evaluated' && (
                           <Button 
                             variant="default" 
                             size="sm"

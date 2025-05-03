@@ -213,23 +213,23 @@ const SubmissionDetail = () => {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {submission.evaluations.map((eval) => (
-                            <TableRow key={eval.evaluatorId}>
-                              <TableCell className="font-medium">{eval.evaluatorName}</TableCell>
-                              <TableCell>{eval.scores.technical}</TableCell>
-                              <TableCell>{eval.scores.financial}</TableCell>
-                              <TableCell>{eval.scores.experience}</TableCell>
-                              <TableCell>{eval.scores.implementation}</TableCell>
-                              <TableCell className="font-medium">{eval.overallScore}</TableCell>
+                          {submission.evaluations.map((evaluation) => (
+                            <TableRow key={evaluation.evaluatorId}>
+                              <TableCell className="font-medium">{evaluation.evaluatorName}</TableCell>
+                              <TableCell>{evaluation.scores.technical}</TableCell>
+                              <TableCell>{evaluation.scores.financial}</TableCell>
+                              <TableCell>{evaluation.scores.experience}</TableCell>
+                              <TableCell>{evaluation.scores.implementation}</TableCell>
+                              <TableCell className="font-medium">{evaluation.overallScore}</TableCell>
                               <TableCell>
-                                <Badge variant={eval.rank === 1 ? "default" : "outline"}>
-                                  {eval.rank === 1 ? (
+                                <Badge variant={evaluation.rank === 1 ? "default" : "outline"}>
+                                  {evaluation.rank === 1 ? (
                                     <div className="flex items-center">
                                       <ListOrdered className="h-3 w-3 mr-1" />
-                                      {eval.rank}
+                                      {evaluation.rank}
                                     </div>
                                   ) : (
-                                    `#${eval.rank}`
+                                    `#${evaluation.rank}`
                                   )}
                                 </Badge>
                               </TableCell>
@@ -241,10 +241,10 @@ const SubmissionDetail = () => {
                       <div className="mt-6">
                         <h4 className="text-sm font-medium mb-2">Evaluator Comments</h4>
                         <div className="space-y-3">
-                          {submission.evaluations.map((eval) => (
-                            <div key={eval.evaluatorId} className="p-3 bg-muted/50 rounded-md">
-                              <p className="text-sm font-medium mb-1">{eval.evaluatorName}</p>
-                              <p className="text-sm">{eval.comments}</p>
+                          {submission.evaluations.map((evaluation) => (
+                            <div key={evaluation.evaluatorId} className="p-3 bg-muted/50 rounded-md">
+                              <p className="text-sm font-medium mb-1">{evaluation.evaluatorName}</p>
+                              <p className="text-sm">{evaluation.comments}</p>
                             </div>
                           ))}
                         </div>

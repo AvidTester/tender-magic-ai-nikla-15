@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
+import { RoleBasedSubmissionAccess } from '@/components/tenders/RoleBasedSubmissionAccess';
 import { 
   CalendarIcon, 
   FileText,
@@ -96,14 +96,8 @@ const TenderDetail = () => {
                 </Button>
               )}
               
-              {(user?.role === 'admin' || user?.role === 'evaluator') && (
-                <Button variant="outline" asChild>
-                  <Link to={`/tenders/${id}/submissions`}>
-                    <ListChecks className="h-4 w-4 mr-2" />
-                    View Submissions
-                  </Link>
-                </Button>
-              )}
+              {/* Now using the RoleBasedSubmissionAccess component to control access */}
+              <RoleBasedSubmissionAccess tenderId={id || '0'} />
             </div>
           </div>
         </div>
@@ -236,14 +230,17 @@ const TenderDetail = () => {
                   <div>{tender.requiresNDA ? 'Yes' : 'No'}</div>
                 </div>
               </CardContent>
-              <CardFooter className="border-t pt-4">
-                <Button className="w-full" variant="default" asChild>
-                  <Link to={`/tenders/${id}/submissions`}>
-                    <ClipboardList className="h-4 w-4 mr-2" />
-                    View Submissions
-                  </Link>
-                </Button>
-              </CardFooter>
+              {/* Only show submissions button for admin and evaluator */}
+              {(user?.role === 'admin' || user?.role === 'evaluator') && (
+                <CardFooter className="border-t pt-4">
+                  <Button className="w-full" variant="default" asChild>
+                    <Link to={`/tenders/${id}/submissions`}>
+                      <ClipboardList className="h-4 w-4 mr-2" />
+                      View Submissions
+                    </Link>
+                  </Button>
+                </CardFooter>
+              )}
             </Card>
 
             {user?.role === 'admin' && (
