@@ -33,7 +33,7 @@ const submissions = [
     tenderTitle: 'Building Maintenance',
     submissionDate: '2025-04-03',
     status: 'Rejected',
-    endDate: '2025-04-20',
+    rejectionDate: '2025-05-01', // Add rejection date for calculating dispute window
     documents: 3,
   },
   {
@@ -121,8 +121,8 @@ const MySubmissions = () => {
                           <DisputeButton
                             tenderId={submission.tenderId}
                             tenderTitle={submission.tenderTitle}
-                            tenderEndDate={submission.endDate || submission.submissionDate}
-                            disputeTimeFrameDays={1}
+                            tenderEndDate={submission.rejectionDate || submission.submissionDate}
+                            disputeTimeFrameDays={3}
                             disputeType="rejection"
                             variant="secondary"
                             size="sm"

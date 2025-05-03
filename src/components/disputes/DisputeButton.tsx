@@ -81,7 +81,7 @@ export function DisputeButton({
           </TooltipTrigger>
           {!isWithinTimeFrame && (
             <TooltipContent>
-              <p>The {disputeTimeFrameDays}-day window for filing disputes has expired</p>
+              <p>The {disputeTimeFrameDays}-day window for filing {disputeType === 'winner' ? 'winner disputes' : 'rejection disputes'} has expired</p>
             </TooltipContent>
           )}
         </Tooltip>
