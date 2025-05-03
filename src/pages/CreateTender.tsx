@@ -40,7 +40,8 @@ const tenderCategories = [
   { value: 'consulting', label: 'Consulting Services' },
   { value: 'equipment', label: 'Equipment' },
   { value: 'marketing', label: 'Marketing & Communication' },
-  { value: 'training', label: 'Training & Development' }
+  { value: 'training', label: 'Training & Development' },
+  { value: 'other', label: 'Other' }  // Added "Other" category
 ];
 
 // Evaluation criteria templates
@@ -120,6 +121,7 @@ interface TenderFormValues {
   description: string;
   referenceId: string;
   category: string;
+  customCategory?: string;
   budget: string;
   requirements: string;
   documents: File[];
@@ -153,6 +155,7 @@ const CreateTender = () => {
       description: '',
       referenceId: '',
       category: '',
+      customCategory: '',
       budget: '',
       requirements: '',
       submissionDeadline: undefined,
@@ -164,6 +167,7 @@ const CreateTender = () => {
   });
 
   const selectedEvaluators = watch('selectedEvaluators') || [];
+  const selectedCategory = watch('category');
 
   // Handle form submission
   const onSubmit = (data: TenderFormValues) => {
@@ -328,6 +332,24 @@ const CreateTender = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* Show custom category field if "other" is selected */}
+                    {selectedCategory === 'other' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="customCategory">Custom Category</Label>
+                        <Input 
+                          id="customCategory"
+                          placeholder="Enter custom category name" 
+                          {...register('customCategory', { required: 'Custom category is required when Other is selected' })}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Please specify a category for this tender.
+                        </p>
+                        {errors.customCategory && (
+                          <p className="text-sm text-destructive">{errors.customCategory.message}</p>
+                        )}
+                      </div>
+                    )}
                     
                     <div className="space-y-2">
                       <Label htmlFor="description">Description</Label>
@@ -363,22 +385,14 @@ const CreateTender = () => {
               {/* Step 2: Documents */}
               {currentStep === 2 && (
                 <div className="space-y-6">
-                  <div className="bg-muted/50 p-6 rounded-lg border border-dashed border-muted-foreground/25 text-center">
-                    <Upload className="h-10 w-10 mx-auto text-muted-foreground" />
-                    <h3 className="mt-4 text-lg font-medium">Upload Tender Documents</h3>
-                    <p className="text-sm text-muted-foreground mt-2 mb-4">
-                      Drag and drop your files here, or click to browse
-                    </p>
-                    <FileUploader 
-                      onFileUpload={handleFileUpload}
-                      maxFiles={5}
-                      maxSize={10 * 1024 * 1024} // 10MB
-                      acceptedFileTypes={['.pdf', '.doc', '.docx', '.xls', '.xlsx']}
-                    />
-                    <p className="text-xs text-muted-foreground mt-4">
-                      Supported formats: PDF, DOCX, XLSX (Max: 10MB per file)
-                    </p>
-                  </div>
+                  {/* Removed the first upload section as requested */}
+                  <FileUploader 
+                    onFileUpload={handleFileUpload}
+                    maxFiles={5}
+                    maxSize={10 * 1024 * 1024} // 10MB
+                    acceptedFileTypes={['.pdf', '.doc', '.docx', '.xls', '.xlsx']}
+                    className="mb-6"
+                  />
                   
                   <div className="space-y-4">
                     <h3 className="font-medium">Document Templates</h3>
@@ -504,13 +518,12 @@ const CreateTender = () => {
                     <CardContent className="p-4">
                       <h3 className="font-medium mb-2">Timeline Preview</h3>
                       <div className="relative">
+                        {/* Modified to use a single line between timeline items */}
                         <div className="absolute h-full w-0.5 bg-primary/30 left-4 top-0 z-0"></div>
                         
                         <div className="relative pl-8 space-y-8">
-                          <div className="absolute left-3 top-0 bottom-0 w-px bg-border"></div>
-                          
                           <div className="relative">
-                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center">
+                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
                               1
                             </div>
                             <h4 className="font-medium">Publication</h4>
@@ -518,7 +531,7 @@ const CreateTender = () => {
                           </div>
                           
                           <div className="relative">
-                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
                               2
                             </div>
                             <h4 className="font-medium">Q&A Period</h4>
@@ -526,17 +539,17 @@ const CreateTender = () => {
                           </div>
                           
                           <div className="relative">
-                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
                               3
                             </div>
                             <h4 className="font-medium">Submission Deadline</h4>
                             <p className="text-sm text-muted-foreground">
-                              {watch('submissionDeadline') ? new Date(watch('submissionDeadline')).toLocaleDateString() : 'Not set'}
+                              {watch('submissionDeadline') ? format(watch('submissionDeadline'), 'PPP') : 'Not set'}
                             </p>
                           </div>
                           
                           <div className="relative">
-                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
                               4
                             </div>
                             <h4 className="font-medium">Evaluation Period</h4>
@@ -544,12 +557,12 @@ const CreateTender = () => {
                           </div>
                           
                           <div className="relative">
-                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                            <div className="absolute left-[-30px] top-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
                               5
                             </div>
                             <h4 className="font-medium">Winner Announcement</h4>
                             <p className="text-sm text-muted-foreground">
-                              {watch('announcementDate') ? new Date(watch('announcementDate')).toLocaleDateString() : 'Not set'}
+                              {watch('announcementDate') ? format(watch('announcementDate'), 'PPP') : 'Not set'}
                             </p>
                           </div>
                         </div>
