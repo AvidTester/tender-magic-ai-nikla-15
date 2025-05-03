@@ -34,8 +34,9 @@ type DisputeFormValues = z.infer<typeof disputeFormSchema>;
 interface DisputeFormProps {
   tenderId: string;
   tenderTitle: string;
-  winnerId: string;
-  winnerName: string;
+  winnerId?: string;
+  winnerName?: string;
+  disputeType?: 'rejection' | 'winner'; // Add dispute type to handle different scenarios
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -45,6 +46,7 @@ export function DisputeForm({
   tenderTitle,
   winnerId,
   winnerName,
+  disputeType = 'winner',
   onSuccess,
   onCancel,
 }: DisputeFormProps) {
@@ -69,6 +71,7 @@ export function DisputeForm({
         vendorName: user?.name,
         reason: values.reason,
         status: 'pending',
+        disputeType,
         createdAt: new Date().toISOString(),
       });
       
@@ -99,13 +102,17 @@ export function DisputeForm({
               <FormLabel>Dispute Reason</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Please provide a detailed explanation for your dispute..."
+                  placeholder={disputeType === 'winner' 
+                    ? "Please provide a detailed explanation for your dispute against the winner selection..." 
+                    : "Please explain why you believe the rejection of your tender submission should be reconsidered..."}
                   className="min-h-[120px]"
                   {...field}
                 />
               </FormControl>
               <FormDescription>
-                Clearly state why you believe the tender award decision should be reconsidered.
+                {disputeType === 'winner'
+                  ? "Clearly state why you believe the tender award decision should be reconsidered."
+                  : "Provide specific reasons why you believe the rejection decision should be reviewed."}
               </FormDescription>
               <FormMessage />
             </FormItem>

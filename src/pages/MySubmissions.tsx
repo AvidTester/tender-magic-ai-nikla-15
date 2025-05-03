@@ -1,185 +1,132 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Eye, FileText, Edit, Flag } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { 
-  Search, 
-  Filter, 
-  Calendar, 
-  Building,
-  FileText,
-  Edit,
-  Eye
-} from 'lucide-react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DisputeButton } from '@/components/disputes/DisputeButton';
 
-// Mock data
+// Mock submissions data
 const submissions = [
   {
-    id: 'S-101',
-    tender: {
-      id: 'T-2023-42',
-      title: 'IT Infrastructure Upgrade'
-    },
-    submissionDate: '2025-05-01',
-    status: 'Under Review',
-    canEdit: true
-  },
-  {
-    id: 'S-102',
-    tender: {
-      id: 'T-2023-38',
-      title: 'Website Redesign Project'
-    },
-    submissionDate: '2025-04-20',
-    status: 'Selected',
-    canEdit: false
-  },
-  {
-    id: 'S-103',
-    tender: {
-      id: 'T-2023-37',
-      title: 'Staff Training Services'
-    },
+    id: '123',
+    tenderId: '45',
+    tenderTitle: 'Office Equipment Procurement',
     submissionDate: '2025-04-15',
-    status: 'Rejected',
-    canEdit: false
+    status: 'Submitted',
+    documents: 4,
   },
   {
-    id: 'S-104',
-    tender: {
-      id: 'T-2023-41',
-      title: 'Office Supplies Procurement'
-    },
-    submissionDate: '2025-05-03',
-    status: 'Pending',
-    canEdit: true
+    id: '124',
+    tenderId: '46',
+    tenderTitle: 'IT Services Contract',
+    submissionDate: '2025-04-10',
+    status: 'Under Review',
+    documents: 5,
+  },
+  {
+    id: '125',
+    tenderId: '47',
+    tenderTitle: 'Building Maintenance',
+    submissionDate: '2025-04-03',
+    status: 'Rejected',
+    endDate: '2025-04-20',
+    documents: 3,
+  },
+  {
+    id: '126',
+    tenderId: '48',
+    tenderTitle: 'Security Services',
+    submissionDate: '2025-04-01',
+    status: 'Won',
+    documents: 6,
   }
 ];
 
 const MySubmissions = () => {
-  const getStatusBadge = (status: string) => {
-    switch(status.toLowerCase()) {
-      case 'under review':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Under Review</Badge>;
-      case 'selected':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Selected</Badge>;
-      case 'rejected':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Rejected</Badge>;
-      case 'pending':
-        return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-  
   return (
     <MainLayout>
       <div className="container mx-auto py-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <h1 className="text-2xl font-bold">My Submissions</h1>
-          
-          <div className="flex flex-col sm:flex-row gap-3 mt-3 md:mt-0 w-full md:w-auto">
-            <div className="relative w-full md:w-auto">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search submissions..." 
-                className="pl-9 w-full md:w-[240px]" 
-              />
-            </div>
-            
-            <Select defaultValue="all">
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="review">Under Review</SelectItem>
-                <SelectItem value="selected">Selected</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              More Filters
-            </Button>
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">My Submissions</h1>
+            <p className="text-muted-foreground">Track and manage your tender submissions</p>
           </div>
+          <Button asChild>
+            <Link to="/available-tenders">Browse Tenders</Link>
+          </Button>
         </div>
         
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl">My Tender Submissions</CardTitle>
-            <CardDescription>
-              View and manage all your tender submissions
-            </CardDescription>
+          <CardHeader>
+            <CardTitle>Tender Submissions</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
                   <TableHead>Tender</TableHead>
-                  <TableHead>Submitted On</TableHead>
+                  <TableHead>Submission Date</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead>Documents</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {submissions.map(submission => (
+                {submissions.map((submission) => (
                   <TableRow key={submission.id}>
-                    <TableCell className="font-medium">{submission.id}</TableCell>
+                    <TableCell className="font-medium">{submission.tenderTitle}</TableCell>
+                    <TableCell>{submission.submissionDate}</TableCell>
                     <TableCell>
-                      <Link 
-                        to={`/tenders/${submission.tender.id}`}
-                        className="text-blue-600 hover:underline"
+                      <Badge 
+                        variant={
+                          submission.status === 'Won' 
+                            ? "default" 
+                            : submission.status === 'Rejected' 
+                              ? "destructive" 
+                              : "secondary"
+                        }
                       >
-                        {submission.tender.title}
-                      </Link>
+                        {submission.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        {new Date(submission.submissionDate).toLocaleDateString()}
-                      </div>
+                      <span className="flex items-center">
+                        <FileText className="h-4 w-4 mr-1 text-muted-foreground" /> 
+                        {submission.documents}
+                      </span>
                     </TableCell>
-                    <TableCell>{getStatusBadge(submission.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          asChild
-                        >
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" asChild>
                           <Link to={`/submissions/${submission.id}`}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            Details
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
                           </Link>
                         </Button>
                         
-                        {submission.canEdit && (
-                          <Button 
-                            size="sm"
-                            asChild
-                          >
+                        {submission.status === 'Submitted' && (
+                          <Button variant="outline" size="sm" asChild>
                             <Link to={`/update-submission/${submission.id}`}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Update
+                              <Edit className="h-4 w-4 mr-1" />
+                              Edit
                             </Link>
                           </Button>
+                        )}
+                        
+                        {submission.status === 'Rejected' && (
+                          <DisputeButton
+                            tenderId={submission.tenderId}
+                            tenderTitle={submission.tenderTitle}
+                            tenderEndDate={submission.endDate || submission.submissionDate}
+                            disputeTimeFrameDays={1}
+                            disputeType="rejection"
+                            variant="secondary"
+                            size="sm"
+                          />
                         )}
                       </div>
                     </TableCell>
@@ -187,17 +134,6 @@ const MySubmissions = () => {
                 ))}
               </TableBody>
             </Table>
-            
-            {submissions.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-8">
-                <Building className="h-12 w-12 text-muted-foreground mb-2" />
-                <h3 className="text-lg font-medium">No submissions yet</h3>
-                <p className="text-muted-foreground mb-4">You haven't submitted any tenders yet.</p>
-                <Button asChild>
-                  <Link to="/available-tenders">Browse Available Tenders</Link>
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>

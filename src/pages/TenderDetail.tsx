@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
@@ -14,7 +13,8 @@ import {
   Building,
   Users,
   CheckCircle,
-  ExternalLink
+  ExternalLink,
+  Flag
 } from 'lucide-react';
 import { RoleBasedSubmissionAccess } from '@/components/tenders/RoleBasedSubmissionAccess';
 import { useAuth } from '@/contexts/AuthContext';

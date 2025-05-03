@@ -4,14 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Flag } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DisputeForm } from './DisputeForm';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 interface DisputeButtonProps {
   tenderId: string;
   tenderTitle: string;
-  winnerId: string;
-  winnerName: string;
+  winnerId?: string;
+  winnerName?: string;
   tenderEndDate: string;
   disputeTimeFrameDays: number;
+  disputeType?: 'rejection' | 'winner';
+  variant?: 'outline' | 'default' | 'destructive' | 'secondary' | 'ghost' | 'link';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
 export function DisputeButton({
@@ -20,7 +25,10 @@ export function DisputeButton({
   winnerId,
   winnerName,
   tenderEndDate,
-  disputeTimeFrameDays = 7
+  disputeTimeFrameDays = 7,
+  disputeType = 'winner',
+  variant = 'outline',
+  size = 'sm'
 }: DisputeButtonProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
@@ -47,17 +55,19 @@ export function DisputeButton({
     return Math.max(0, daysDiff);
   };
 
+  const buttonText = disputeType === 'winner' ? 'File Dispute' : 'Dispute Rejection';
+
   return (
     <>
       <Button
-        variant="outline"
-        size="sm"
+        variant={variant}
+        size={size}
         onClick={() => setIsDialogOpen(true)}
         disabled={!isWithinTimeFrame}
         className="flex items-center gap-2"
       >
         <Flag className="h-4 w-4" />
-        File Dispute
+        {buttonText}
         {isWithinTimeFrame && getDaysLeft() <= 3 && (
           <span className="text-xs text-red-500 font-medium">{getDaysLeft()} days left</span>
         )}
@@ -66,11 +76,16 @@ export function DisputeButton({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>File a Dispute</DialogTitle>
+            <DialogTitle>
+              {disputeType === 'winner' ? 'File a Dispute Against Winner Selection' : 'Dispute Submission Rejection'}
+            </DialogTitle>
             <DialogDescription>
               {isWithinTimeFrame ? (
                 <>
-                  You have {getDaysLeft()} days left to file a dispute against the winner selection for this tender.
+                  You have {getDaysLeft()} days left to file a dispute 
+                  {disputeType === 'winner' 
+                    ? ' against the winner selection for this tender.' 
+                    : ' against the rejection of your submission.'}
                   Please provide a detailed explanation for your dispute.
                 </>
               ) : (
@@ -82,14 +97,25 @@ export function DisputeButton({
           </DialogHeader>
           
           {isWithinTimeFrame ? (
-            <DisputeForm
-              tenderId={tenderId}
-              tenderTitle={tenderTitle}
-              winnerId={winnerId}
-              winnerName={winnerName}
-              onSuccess={() => setIsDialogOpen(false)}
-              onCancel={() => setIsDialogOpen(false)}
-            />
+            <>
+              <Alert variant="warning" className="mb-4">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Important</AlertTitle>
+                <AlertDescription>
+                  Disputes must be filed within {disputeTimeFrameDays} days of the decision date.
+                  You have {getDaysLeft()} days remaining.
+                </AlertDescription>
+              </Alert>
+              <DisputeForm
+                tenderId={tenderId}
+                tenderTitle={tenderTitle}
+                winnerId={winnerId}
+                winnerName={winnerName}
+                disputeType={disputeType}
+                onSuccess={() => setIsDialogOpen(false)}
+                onCancel={() => setIsDialogOpen(false)}
+              />
+            </>
           ) : (
             <div className="flex justify-end">
               <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
