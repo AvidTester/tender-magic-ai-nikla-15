@@ -22,6 +22,7 @@ import CompletedEvaluations from "./pages/CompletedEvaluations";
 import Tenders from "./pages/Tenders";
 import TenderDetail from "./pages/TenderDetail";
 import TenderSubmissions from "./pages/TenderSubmissions";
+import SubmissionDetail from "./pages/SubmissionDetail";
 import ApplyTender from "./pages/ApplyTender";
 import EvaluateTender from "./pages/EvaluateTender";
 import EvaluationForm from "./pages/EvaluationForm";
@@ -65,6 +66,11 @@ const App = () => (
             <Route path="/tenders/:id/submissions" element={
               <ProtectedRoute allowedRoles={['admin', 'evaluator']}>
                 <TenderSubmissions />
+              </ProtectedRoute>
+            } />
+            <Route path="/submissions/:id" element={
+              <ProtectedRoute allowedRoles={['admin', 'evaluator']}>
+                <SubmissionDetail />
               </ProtectedRoute>
             } />
             <Route path="/tenders/:id/edit" element={
