@@ -13,7 +13,9 @@ import {
   Calendar,
   Building,
   Timer,
-  Eye
+  Eye,
+  Check,
+  Lock
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
@@ -28,7 +30,8 @@ const tenders = [
     status: 'Open',
     deadline: '2025-05-30',
     budget: '$50,000',
-    organization: 'Ministry of Education'
+    organization: 'Ministry of Education',
+    alreadyApplied: true
   },
   {
     id: 2,
@@ -38,7 +41,8 @@ const tenders = [
     status: 'Open',
     deadline: '2025-06-15',
     budget: '$120,000',
-    organization: 'Department of Health'
+    organization: 'Department of Health',
+    alreadyApplied: false
   },
   {
     id: 3,
@@ -48,7 +52,8 @@ const tenders = [
     status: 'Open',
     deadline: '2025-07-01',
     budget: '$2,500,000',
-    organization: 'City Council'
+    organization: 'City Council',
+    alreadyApplied: false
   },
   {
     id: 4,
@@ -58,7 +63,8 @@ const tenders = [
     status: 'Open',
     deadline: '2025-05-20',
     budget: '$15,000',
-    organization: 'Ministry of Finance'
+    organization: 'Ministry of Finance',
+    alreadyApplied: true
   },
   {
     id: 5,
@@ -68,7 +74,8 @@ const tenders = [
     status: 'Open',
     deadline: '2025-06-10',
     budget: '$85,000',
-    organization: 'Technology Department'
+    organization: 'Technology Department',
+    alreadyApplied: false
   },
   {
     id: 6,
@@ -78,7 +85,8 @@ const tenders = [
     status: 'Open',
     deadline: '2025-08-15',
     budget: '$750,000',
-    organization: 'Public Works Department'
+    organization: 'Public Works Department',
+    alreadyApplied: false
   },
 ];
 
@@ -117,6 +125,11 @@ const AvailableTenders = () => {
         <div className="mt-4 flex items-center gap-2 flex-wrap">
           <Badge variant="secondary">{tender.category}</Badge>
           <Badge>{tender.status}</Badge>
+          {tender.alreadyApplied && (
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              <Check className="h-3 w-3 mr-1" /> Applied
+            </Badge>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center border-t pt-4">
@@ -127,12 +140,19 @@ const AvailableTenders = () => {
           </Link>
         </Button>
         {isVendor && (
-          <Button asChild>
-            <Link to={`/apply-tender/${tender.id}`}>
-              <SendHorizonal className="mr-2 h-4 w-4" />
-              Apply
-            </Link>
-          </Button>
+          tender.alreadyApplied ? (
+            <Button variant="outline" disabled className="cursor-not-allowed">
+              <Lock className="mr-2 h-4 w-4" />
+              Already Applied
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link to={`/apply-tender/${tender.id}`}>
+                <SendHorizonal className="mr-2 h-4 w-4" />
+                Apply
+              </Link>
+            </Button>
+          )
         )}
       </CardFooter>
     </Card>

@@ -142,7 +142,14 @@ const MySubmissions = () => {
                 {submissions.map(submission => (
                   <TableRow key={submission.id}>
                     <TableCell className="font-medium">{submission.id}</TableCell>
-                    <TableCell>{submission.tender.title}</TableCell>
+                    <TableCell>
+                      <Link 
+                        to={`/tenders/${submission.tender.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {submission.tender.title}
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
