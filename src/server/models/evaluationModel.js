@@ -1,5 +1,5 @@
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const evaluationSchema = mongoose.Schema(
   {
@@ -48,4 +48,4 @@ const evaluationSchema = mongoose.Schema(
 
 const Evaluation = mongoose.model('Evaluation', evaluationSchema);
 
-module.exports = Evaluation;
+export default Evaluation;

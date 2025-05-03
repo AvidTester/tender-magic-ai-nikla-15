@@ -1,5 +1,5 @@
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const tenderSchema = mongoose.Schema(
   {
@@ -68,4 +68,4 @@ const tenderSchema = mongoose.Schema(
 
 const Tender = mongoose.model('Tender', tenderSchema);
 
-module.exports = Tender;
+export default Tender;

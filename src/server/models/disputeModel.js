@@ -1,5 +1,5 @@
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const disputeSchema = mongoose.Schema(
   {
@@ -60,4 +60,4 @@ const disputeSchema = mongoose.Schema(
 
 const Dispute = mongoose.model('Dispute', disputeSchema);
 
-module.exports = Dispute;
+export default Dispute;
